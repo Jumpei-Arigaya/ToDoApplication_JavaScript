@@ -1,21 +1,51 @@
 const form = document.getElementById("form");
 const input = document.getElementById("input");
 const ul = document.getElementById("ul");
-const todo = input.innerText;
+const todos = JSON.parse(localStorage.getItem("todos"));
 
+if (todos) {
+    todos.forEach(todo => {
+        add(todo);        
+    });
+}
+
+//TODOリストを入力後、エンターキーが押下されたら、liタグを使用して一覧表示する
 form.addEventListener('submit', (event) => {
     event.preventDefault();
     add();
     input.value = "";
 })
 
-function add() {
+//テキストボックスに入力された値を取得し、ulタグの子要素としてliタグを追加する
+function add(todo) {
     let todoText = input.value;
+
+    //もしローカルストレージから読み込んだデータが存在すれば、todoTextに追加する
+    if (todo) {
+        todoText = todo;
+    }
+
     if (todoText) {
         const li = document.createElement("li");
         li.innerText = todoText;
         li.classList.add("list-group-item");
+        li.addEventListener('contextmenu', function(event) {
+            event.preventDefault();
+            li.remove();
+            saveData();
+        })
         ul.appendChild(li);
         input.value = "";
+        saveData();
     }
+}
+
+//全てのliの情報を保存する
+function saveData() {
+    const lists = document.querySelectorAll("li");
+    let todos = [];
+    lists.forEach(list => {
+       todos.push(list.innerText);
+    });
+    localStorage.setItem("todos", JSON.stringify(todos));
 }
